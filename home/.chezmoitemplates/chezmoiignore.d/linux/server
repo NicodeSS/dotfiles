@@ -1,0 +1,8 @@
+.tmux.conf.d/system/server.conf
+
+.local/bin/server
+
+.zsh/server/zshrc
+.zsh/server/zshprofile
+
+.bash/server/bashrc
