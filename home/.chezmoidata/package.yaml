@@ -1,0 +1,76 @@
+packages:
+  darwin:
+    brew:
+      - zsh
+      - reattach-to-user-namespace
+      - git
+      - tmux
+      - thefuck
+      - atuin
+      - node
+      - python
+      - bitwarden-cli
+      - blueutil
+      - curl
+      - ffmpeg
+      - htop
+      - imagemagick
+      - iperf3
+      - neofetch
+      - neovim
+      - pyenv
+      - scrcpy
+      - tldr
+      - yt-dlp
+      # - fzf
+    cask:
+      - airbuddy
+      - android-platform-tools
+      - devtoys
+      - discord
+      - dozer
+      - drawio
+      - epoch-flip-clock
+      - ghostty
+      - google-chrome
+      - iina
+      - iterm2
+      - last-window-quits
+      - microsoft-edge
+      - monitorcontrol
+      - obsidian
+      - reqable
+      - snipaste
+      - topnotch
+      - visual-studio-code
+      - warp
+      - bitwarden
+  linux:
+    internal:
+      common:
+        - curl
+        - git
+        - zsh
+        - neovim
+        - htop
+        - lsof
+        - ffmpeg
+        - neofetch
+        - tldr
+        - xclip
+        - cifs-utils
+        - avahi-daemon
+        - tmux # client only?
+        - build-essential
+
+      client:
+        - nmap
+
+      server:
+
+    brew:
+      common:
+
+      client:
+
+      server:
