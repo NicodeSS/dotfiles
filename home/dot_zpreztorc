@@ -29,6 +29,10 @@ zstyle ':prezto:*:*' color 'yes'
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
+# environment must be the first module
+# syntax-highlighting > history-substring-search > autosuggestions
+# node > utility > completion > fasd
+
 zstyle ':prezto:load' pmodule \
   'environment' \
   'terminal' \
@@ -36,14 +40,22 @@ zstyle ':prezto:load' pmodule \
   'history' \
   'directory' \
   'spectrum' \
+  'node' \
   'utility' \
   'completion' \
-  'history-substring-search' \
   'prompt' \
   'python' \
   'syntax-highlighting' \
   'autosuggestions' \
-  # 'fzf'
+  'fasd' \
+  'git' \
+  'osx' \
+  'thefuck' \
+  'alias-tips' \
+  'tmux'
+
+# 'fzf'
+# 'history-substring-search'
 
 #
 # Autosuggestions
@@ -82,6 +94,7 @@ zstyle ':prezto:module:editor' key-bindings 'vi'
 
 # Ignore submodules when they are 'dirty', 'untracked', 'all', or 'none'.
 # zstyle ':prezto:module:git:status:ignore' submodules 'all'
+zstyle ':prezto:module:git:alias' skip 'yes'
 
 #
 # GNU Utility
@@ -239,16 +252,16 @@ zstyle ':prezto:module:syntax-highlighting' highlighters \
 #
 
 # Auto start a session when Zsh is launched in a local terminal.
-# zstyle ':prezto:module:tmux:auto-start' local 'yes'
+zstyle ':prezto:module:tmux:auto-start' local 'yes'
 
 # Auto start a session when Zsh is launched in a SSH connection.
 # zstyle ':prezto:module:tmux:auto-start' remote 'yes'
 
 # Integrate with iTerm2.
-# zstyle ':prezto:module:tmux:iterm' integrate 'yes'
+zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 # Set the default session name:
-# zstyle ':prezto:module:tmux:session' name 'YOUR DEFAULT SESSION NAME'
+zstyle ':prezto:module:tmux:session' name 'main'
 
 #
 # Utility
@@ -258,3 +271,6 @@ zstyle ':prezto:module:syntax-highlighting' highlighters \
 # before deleting or overwriting files. Set to 'no' to disable this safer
 # behavior.
 # zstyle ':prezto:module:utility' safe-ops 'yes'
+
+# Contrib - alias-tips
+zstyle ":prezto:module:alias-tips" text "Alias available: "

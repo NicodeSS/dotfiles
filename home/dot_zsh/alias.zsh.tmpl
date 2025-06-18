@@ -1,79 +1,51 @@
 #!/usr/bin/env zsh
 
-# =============================================================================
-# ZSH Alias 配置文件 (由 chezmoi 动态生成)
-# 此文件包含了所有相关 alias 的内容，无需额外引用其他文件
-# =============================================================================
+# ----- [Common] -----
+for alias_file in ~/.local/share/alias/common/*.sh; do
+    source-safe "$alias_file"
+done
 
-# =============================================================================
-# 通用 Alias 配置 (来自 ~/.local/share/alias/common.sh)
-# =============================================================================
-{{- $commonFile := joinPath .chezmoi.homeDir ".local/share/alias/common.sh" }}
-{{- if stat $commonFile }}
-{{   include $commonFile | trim }}
-{{- end }}
-
-{{- $systemFile := printf "%s/.local/share/alias/system/%s.sh" .chezmoi.homeDir .system }}
-{{- if stat $systemFile }}
-
-# =============================================================================
-# {{ .system | title }} 系统专用 Alias 配置
-# =============================================================================
-{{   include $systemFile | trim }}
-{{- end }}
-
-{{- $osFile := "" }}
+# ----- [OS Specific] -----
 {{- if eq .chezmoi.os "darwin" }}
-{{-   $osFile = printf "%s/.local/share/alias/os/macos.sh" .chezmoi.homeDir }}
+# macOS
+source-safe ~/.local/share/alias/os/macos.sh
 {{- else if eq .chezmoi.os "linux" }}
-{{-   if (.chezmoi.kernel | contains "microsoft") }}
-{{-     $osFile = printf "%s/.local/share/alias/os/wsl.sh" .chezmoi.homeDir }}
-{{-   else }}
-{{-     $osFile = printf "%s/.local/share/alias/os/linux.sh" .chezmoi.homeDir }}
-{{-   end }}
+# Linux
+source-safe ~/.local/share/alias/os/linux.sh
+{{- else if (.chezmoi.kernel | contains "microsoft") }}
+# WSL
+source-safe ~/.local/share/alias/os/wsl.sh
 {{- end }}
 
-{{- if and $osFile (stat $osFile) }}
 
-# =============================================================================
-# {{ .chezmoi.os | title }} 操作系统专用 Alias 配置
-# =============================================================================
-{{   include $osFile | trim }}
+{{- if hasKey . "system" }}
+# ----- [System Role] -----
+{{- if eq .system "server" }}
+# Server
+source-safe ~/.local/share/alias/system/server.sh
+{{- else if eq .system "client" }}
+# Client
+source-safe ~/.local/share/alias/system/client.sh
+{{- end }}
 {{- end }}
 
-# =============================================================================
-# 配置管理相关函数
-# =============================================================================
 
-# 显示当前配置信息
-show_alias_info() {
-    echo "当前 ZSH Alias 配置信息:"
-    echo "  系统类型: {{ .system }}"
-    echo "  操作系统: {{ .chezmoi.os }}"
-    echo "  内核版本: {{ .chezmoi.kernel }}"
-    echo ""
-    echo "已加载的配置模块:"
-{{- if stat $commonFile }}
-    echo "  ✓ 通用配置"
-{{- end }}
-{{- if and $systemFile (stat $systemFile) }}
-    echo "  ✓ {{ .system | title }} 系统配置"
-{{- end }}
-{{- if and $osFile (stat $osFile) }}
-    echo "  ✓ {{ .chezmoi.os | title }} 操作系统配置"
-{{- end }}
-    echo ""
-    echo "此文件由 chezmoi 在 {{ now | date "2006-01-02 15:04:05" }} 生成"
-}
+# ----- [Tools] -----
+if [[ -d ~/.local/share/alias/tools ]]; then
+    for tool_file in ~/.local/share/alias/tools/*.sh; do
+        tool_name=$(basename "$tool_file" .sh)
+        command -v "$tool_name" >/dev/null 2>&1 && source-safe "$tool_file"
+    done
+fi
 
-# 重新生成 alias 配置 (需要运行 chezmoi apply)
-regenerate_aliases() {
-    echo "重新生成 alias 配置..."
-    chezmoi apply ~/.zsh/alias.zsh
-    echo "配置已更新，请运行 'source ~/.zsh/alias.zsh' 或重启终端以生效"
-}
+# ----- [Local (chezmoi ignored)] -----
+source-safe ~/.local/share/alias/local.sh
 
-# 管理 alias 的快捷命令
-alias alias-info='show_alias_info'
-alias alias-regen='regenerate_aliases'
-alias alias-reload='source ~/.zsh/alias.zsh && echo "Alias 配置已重新加载"'
+
+{{- if hasKey . "development_mode" }}
+{{- if .development_mode }}
+# ----- [Development Mode] -----
+source-safe ~/.local/share/alias/dev.sh
+{{- end }}
+{{- end }}
+
