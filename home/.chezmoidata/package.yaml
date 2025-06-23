@@ -7,7 +7,6 @@ packages:
       - tmux
       - thefuck
       - atuin
-      - node
       - python
       - pipx
       - bitwarden-cli
