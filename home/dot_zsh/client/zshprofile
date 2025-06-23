@@ -50,6 +50,7 @@ path=(
   /opt/{homebrew,local}/{,s}bin(N-/)
   /usr/local/{,s}bin(N-/)
   ${HOME}/.local/bin(N-/)
+  ${HOME}/.local/n/bin(N-/)
 )
 
 #
@@ -68,3 +69,6 @@ fi
 if [[ -z "$LESSOPEN" ]] && (( $#commands[(i)lesspipe(|.sh)] )); then
   export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
 fi
+
+# N - Node Version Manager
+export N_PREFIX="${HOME}/.local/n"

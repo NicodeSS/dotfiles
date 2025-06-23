@@ -1,1 +1,5 @@
 #!/usr/bin/env zsh
+
+# N - Node Version Manager
+export N_PREFIX="${HOME}/.local/n"
+export PATH="$N_PREFIX/bin:$PATH"
