@@ -1,0 +1,136 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+# chezmoi:run-onchange-hash: {{ .packages.linux | toJson | sha256sum }}
+
+# Color definitions
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Detect Linux distribution
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    DISTRO=$ID
+elif [ -f /etc/redhat-release ]; then
+    DISTRO="rhel"
+elif [ -f /etc/debian_version ]; then
+    DISTRO="debian"
+else
+    echo "Cannot detect Linux distribution, exiting"
+    exit 1
+fi
+
+echo "Detected distribution: $DISTRO"
+
+# Get system role from chezmoi configuration
+SYSTEM_ROLE="{{ .system | default "client" }}"
+echo "System role: $SYSTEM_ROLE"
+
+# Function to install internal packages (batch installation)
+install_internal_packages() {
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        echo "No internal packages to install"
+        return 0
+    fi
+    
+    case $DISTRO in
+        ubuntu|debian)
+            echo "Installing packages with apt: ${packages[*]}"
+            sudo apt update
+            sudo apt install -y "${packages[@]}" || echo "Warning: Some packages failed to install"
+            ;;
+        fedora|rhel|centos)
+            echo "Installing packages with dnf/yum: ${packages[*]}"
+            if command -v dnf &> /dev/null; then
+                PKG_MANAGER="dnf"
+            else
+                PKG_MANAGER="yum"
+            fi
+            sudo $PKG_MANAGER install -y "${packages[@]}" || echo "Warning: Some packages failed to install"
+            ;;
+        arch|manjaro)
+            echo "Installing packages with pacman: ${packages[*]}"
+            sudo pacman -Sy --needed --noconfirm "${packages[@]}" || echo "Warning: Some packages failed to install"
+            ;;
+        opensuse|opensuse-leap|opensuse-tumbleweed)
+            echo "Installing packages with zypper: ${packages[*]}"
+            sudo zypper install -y "${packages[@]}" || echo "Warning: Some packages failed to install"
+            ;;
+        *)
+            echo "Unsupported distribution: $DISTRO"
+            echo "Supported distributions: ubuntu, debian, fedora, rhel, centos, arch, manjaro, opensuse"
+            return 1
+            ;;
+    esac
+}
+
+# Function to install Homebrew packages
+install_brew_packages() {
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        echo "No brew packages to install"
+        return 0
+    fi
+    
+    # Simple check if Homebrew is available
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew not installed, skipping brew packages: ${packages[*]}"
+        return 0
+    fi
+    
+    echo "Installing packages with Homebrew: ${packages[*]}"
+    brew install "${packages[@]}" || echo "Warning: Some brew packages failed to install"
+}
+
+# Collect packages to install
+internal_packages=()
+brew_packages=()
+
+# Add common packages
+{{ range .packages.linux.internal.common -}}
+internal_packages+=("{{ . }}")
+{{ end -}}
+
+# Add specific packages based on chezmoi template variable .system
+{{- if eq .system "client" }}
+{{- range .packages.linux.internal.client }}
+internal_packages+=("{{ . }}")
+{{- end }}
+{{- else if eq .system "server" }}
+{{- range .packages.linux.internal.server }}
+internal_packages+=("{{ . }}")
+{{- end }}
+{{- end }}
+
+# Add brew common packages
+{{ range .packages.linux.brew.common -}}
+brew_packages+=("{{ . }}")
+{{ end -}}
+
+# Add brew specific packages based on system role
+{{- if eq .system "client" }}
+{{- range .packages.linux.brew.client }}
+brew_packages+=("{{ . }}")
+{{- end }}
+{{- else if eq .system "server" }}
+{{- range .packages.linux.brew.server }}
+brew_packages+=("{{ . }}")
+{{- end }}
+{{- end }}
+
+echo "Internal packages to install: ${internal_packages[*]}"
+echo "Brew packages to install: ${brew_packages[*]}"
+
+# Install packages
+install_internal_packages "${internal_packages[@]}"
+install_brew_packages "${brew_packages[@]}"
+
+
+echo -e "${GREEN}Package installation completed!${NC}"
+
+{{ end -}} 
