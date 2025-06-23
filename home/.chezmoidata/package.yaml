@@ -47,7 +47,6 @@ packages:
       - warp
       - bitwarden
     pip:
-      - thefuck
 
   linux:
     internal:
