@@ -48,7 +48,6 @@ packages:
       - bitwarden
     pip:
       - thefuck
-      - requests
 
   linux:
     internal:
@@ -87,7 +86,6 @@ packages:
     pip:
       common:
         - thefuck
-        - requests
 
       client:
 
