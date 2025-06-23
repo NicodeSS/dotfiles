@@ -45,7 +45,9 @@ packages:
       - visual-studio-code
       - warp
       - bitwarden
-    pip:
+    python:
+
+    node:
 
   linux:
     internal:
@@ -61,18 +63,14 @@ packages:
         - neofetch
         - tldr
         - xclip
-        - cifs-utils
-        - avahi-daemon
         - tmux # client only?
         - build-essential
         - python3
-        - python3-pip
-        - python3-dev
-        - python3-setuptools
-        - pipx
 
       client:
         - nmap
+        - cifs-utils
+        - avahi-daemon
 
       server:
 
@@ -83,10 +81,12 @@ packages:
 
       server:
 
-    pip:
+    python:
       common:
-        - "thefuck --user"
+        - "thefuck"
 
       client:
 
       server:
+
+    node:
