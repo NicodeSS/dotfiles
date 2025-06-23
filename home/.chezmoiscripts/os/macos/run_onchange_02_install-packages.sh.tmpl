@@ -63,20 +63,9 @@ echo -e "${GREEN}✓ pipx 可用，开始安装 Python 包${NC}"
 pipx_packages=()
 
 # 添加 common 包
-{{ range .packages.darwin.pip.common -}}
+{{ range .packages.darwin.pip -}}
 pipx_packages+=("{{ . }}")
 {{ end -}}
-
-# 根据系统角色添加特定包
-{{- if eq .system "client" }}
-{{- range .packages.darwin.pip.client }}
-pipx_packages+=("{{ . }}")
-{{- end }}
-{{- else if eq .system "server" }}
-{{- range .packages.darwin.pip.server }}
-pipx_packages+=("{{ . }}")
-{{- end }}
-{{- end }}
 
 if [ ${#pipx_packages[@]} -gt 0 ]; then
     echo -e "${BLUE}安装 pipx 包: ${pipx_packages[*]}${NC}"
