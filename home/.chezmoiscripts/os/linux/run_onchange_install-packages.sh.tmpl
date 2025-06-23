@@ -1,5 +1,6 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/bash
+# chezmoi:run-onchange-hash: {{ .packages | toJson | sha256sum }}
 # 检测Linux发行版
 if [ -f /etc/os-release ]; then
     . /etc/os-release

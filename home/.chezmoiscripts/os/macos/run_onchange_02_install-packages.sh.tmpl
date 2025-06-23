@@ -1,5 +1,6 @@
 {{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
+# chezmoi:run-onchange-hash: {{ .packages | toJson | sha256sum }}
 
 # 允许脚本在 brew bundle 失败时继续执行
 set +e
