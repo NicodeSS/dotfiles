@@ -1,6 +1,6 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/bash
-# chezmoi:run-onchange-hash: {{ .packages.linux | toJson | sha256sum }}
+# chezmoi:run-onchange-hash: {{ .packages.linux.internal | toJson | sha256sum }}
 
 # Color definitions
 RED='\033[0;31m'
@@ -28,12 +28,12 @@ echo "Detected distribution: $DISTRO"
 SYSTEM_ROLE="{{ .system | default "client" }}"
 echo "System role: $SYSTEM_ROLE"
 
-# Function to install internal packages (batch installation)
-install_internal_packages() {
+# Function to install native packages (batch installation)
+install_native_packages() {
     local packages=("$@")
     
     if [ ${#packages[@]} -eq 0 ]; then
-        echo "No internal packages to install"
+        echo "No native packages to install"
         return 0
     fi
     
@@ -68,69 +68,30 @@ install_internal_packages() {
     esac
 }
 
-# Function to install Homebrew packages
-install_brew_packages() {
-    local packages=("$@")
-    
-    if [ ${#packages[@]} -eq 0 ]; then
-        echo "No brew packages to install"
-        return 0
-    fi
-    
-    # Simple check if Homebrew is available
-    if ! command -v brew &> /dev/null; then
-        echo "Homebrew not installed, skipping brew packages: ${packages[*]}"
-        return 0
-    fi
-    
-    echo "Installing packages with Homebrew: ${packages[*]}"
-    brew install "${packages[@]}" || echo "Warning: Some brew packages failed to install"
-}
-
-# Collect packages to install
-internal_packages=()
-brew_packages=()
+# Collect native packages to install
+native_packages=()
 
 # Add common packages
 {{ range .packages.linux.internal.common -}}
-internal_packages+=("{{ . }}")
+native_packages+=("{{ . }}")
 {{ end -}}
 
 # Add specific packages based on chezmoi template variable .system
 {{- if eq .system "client" }}
 {{- range .packages.linux.internal.client }}
-internal_packages+=("{{ . }}")
+native_packages+=("{{ . }}")
 {{- end }}
 {{- else if eq .system "server" }}
 {{- range .packages.linux.internal.server }}
-internal_packages+=("{{ . }}")
+native_packages+=("{{ . }}")
 {{- end }}
 {{- end }}
 
-# Add brew common packages
-{{ range .packages.linux.brew.common -}}
-brew_packages+=("{{ . }}")
-{{ end -}}
-
-# Add brew specific packages based on system role
-{{- if eq .system "client" }}
-{{- range .packages.linux.brew.client }}
-brew_packages+=("{{ . }}")
-{{- end }}
-{{- else if eq .system "server" }}
-{{- range .packages.linux.brew.server }}
-brew_packages+=("{{ . }}")
-{{- end }}
-{{- end }}
-
-echo "Internal packages to install: ${internal_packages[*]}"
-echo "Brew packages to install: ${brew_packages[*]}"
+echo "Native packages to install: ${native_packages[*]}"
 
 # Install packages
-install_internal_packages "${internal_packages[@]}"
-install_brew_packages "${brew_packages[@]}"
+install_native_packages "${native_packages[@]}"
 
-
-echo -e "${GREEN}Package installation completed!${NC}"
+echo -e "${GREEN}Native package installation completed!${NC}"
 
 {{ end -}} 
