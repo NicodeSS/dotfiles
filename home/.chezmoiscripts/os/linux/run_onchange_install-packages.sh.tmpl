@@ -1,6 +1,6 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/bash
-# chezmoi:run-onchange-hash: {{ .packages | toJson | sha256sum }}
+# chezmoi:run-onchange-hash: {{ .packages.linux | toJson | sha256sum }}
 # 检测Linux发行版
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -122,100 +122,111 @@ echo "Brew packages to install: ${brew_packages[*]}"
 install_internal_packages "${internal_packages[@]}"
 install_brew_packages "${brew_packages[@]}"
 
-# 安装 pip 包
-echo "开始安装 pip 包..."
+# 安装 pipx 包
+echo "开始安装 pipx 包..."
 
-# 检查并安装 pip 的函数
-ensure_pip_installed() {
-    if command -v pip3 &> /dev/null; then
-        PIP_CMD="pip3"
-        return 0
-    elif command -v pip &> /dev/null; then
-        PIP_CMD="pip"
-        return 0
-    else
-        echo "pip 未安装，尝试安装 python3-pip..."
-        case $DISTRO in
-            ubuntu|debian)
-                sudo apt install -y python3-pip
-                ;;
-            fedora|rhel|centos)
-                if command -v dnf &> /dev/null; then
-                    sudo dnf install -y python3-pip
-                else
-                    sudo yum install -y python3-pip
-                fi
-                ;;
-            arch|manjaro)
-                sudo pacman -S --needed --noconfirm python-pip
-                ;;
-            opensuse|opensuse-leap|opensuse-tumbleweed)
-                sudo zypper install -y python3-pip
-                ;;
-            *)
-                echo "不支持的发行版，无法安装 pip: $DISTRO"
-                return 1
-                ;;
-        esac
-        
-        # 重新检查 pip
-        if command -v pip3 &> /dev/null; then
-            PIP_CMD="pip3"
-            return 0
-        elif command -v pip &> /dev/null; then
-            PIP_CMD="pip"
-            return 0
-        else
-            echo "pip 安装失败"
-            return 1
-        fi
-    fi
-}
+# 颜色定义
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# 安装 pip 包的函数
-install_pip_packages() {
+# 检查 pipx 是否可用
+if ! command -v pipx &> /dev/null; then
+    echo ""
+    echo -e "${RED}========================================${NC}"
+    echo -e "${RED}         ⚠️  PIPX 不可用警告  ⚠️         ${NC}"
+    echo -e "${RED}========================================${NC}"
+    echo -e "${YELLOW}pipx 命令未找到！${NC}"
+    echo ""
+    echo -e "${BLUE}可能的解决方案:${NC}"
+    echo -e "  1. 检查是否已安装 pipx:"
+    case $DISTRO in
+        ubuntu|debian)
+            echo -e "     ${GREEN}dpkg -l | grep pipx${NC}"
+            echo -e "     如果未安装: ${GREEN}sudo apt install pipx${NC}"
+            ;;
+        fedora|rhel|centos)
+            echo -e "     ${GREEN}rpm -qa | grep pipx${NC}"
+            if command -v dnf &> /dev/null; then
+                echo -e "     如果未安装: ${GREEN}sudo dnf install pipx${NC}"
+            else
+                echo -e "     如果未安装: ${GREEN}sudo yum install pipx${NC}"
+            fi
+            ;;
+        arch|manjaro)
+            echo -e "     ${GREEN}pacman -Q pipx${NC}"
+            echo -e "     如果未安装: ${GREEN}sudo pacman -S python-pipx${NC}"
+            ;;
+        opensuse|opensuse-leap|opensuse-tumbleweed)
+            echo -e "     ${GREEN}zypper search --installed-only pipx${NC}"
+            echo -e "     如果未安装: ${GREEN}sudo zypper install pipx${NC}"
+            ;;
+        *)
+            echo -e "     ${GREEN}which pipx${NC}"
+            echo -e "     或使用 pip 安装: ${GREEN}pip install --user pipx${NC}"
+            ;;
+    esac
+    echo ""
+    echo -e "  2. 确保 pipx 在 PATH 中:"
+    echo -e "     ${GREEN}pipx ensurepath${NC}"
+    echo ""
+    echo -e "  3. 重新加载 shell 配置:"
+    echo -e "     ${GREEN}source ~/.bashrc${NC} 或 ${GREEN}source ~/.zshrc${NC}"
+    echo ""
+    echo -e "${YELLOW}跳过 pipx 包安装...${NC}"
+    echo -e "${RED}========================================${NC}"
+    echo ""
+    exit 0
+fi
+
+echo -e "${GREEN}✓ pipx 可用，开始安装 Python 包${NC}"
+
+# 安装 pipx 包的函数
+install_pipx_packages() {
     local packages=("$@")
     
     if [ ${#packages[@]} -eq 0 ]; then
-        echo "没有 pip 包需要安装"
+        echo -e "${YELLOW}没有 pipx 包需要安装${NC}"
         return 0
     fi
     
-    echo "安装 pip 包: ${packages[*]}"
-    $PIP_CMD install --user "${packages[@]}" || echo "警告: 一些 pip 包安装失败"
+    echo -e "${BLUE}安装 pipx 包: ${packages[*]}${NC}"
+    for package in "${packages[@]}"; do
+        echo -e "${GREEN}正在安装 pipx 包: $package${NC}"
+        if pipx install "$package"; then
+            echo -e "${GREEN}✓ $package 安装成功${NC}"
+        else
+            echo -e "${RED}✗ 警告: pipx 包 $package 安装失败${NC}"
+        fi
+    done
 }
 
-# 确保 pip 已安装
-if ensure_pip_installed; then
-    echo "使用 pip 命令: $PIP_CMD"
-    
-    # 收集要安装的 pip 包
-    pip_packages=()
-    
-    # 添加 common 包
-    {{ range .packages.linux.pip.common -}}
-    pip_packages+=("{{ . }}")
-    {{ end -}}
-    
-    # 根据系统角色添加特定包
-    {{- if eq .system "client" }}
-    {{- range .packages.linux.pip.client }}
-    pip_packages+=("{{ . }}")
-    {{- end }}
-    {{- else if eq .system "server" }}
-    {{- range .packages.linux.pip.server }}
-    pip_packages+=("{{ . }}")
-    {{- end }}
-    {{- end }}
-    
-    echo "要安装的 pip 包: ${pip_packages[*]}"
-    
-    # 安装包
-    install_pip_packages "${pip_packages[@]}"
-else
-    echo "无法安装 pip，跳过 pip 包安装"
-fi
+# 收集要安装的 pipx 包
+pipx_packages=()
 
-echo "Package installation completed!"
+# 添加 common 包
+{{ range .packages.linux.pip.common -}}
+pipx_packages+=("{{ . }}")
+{{ end -}}
+
+# 根据系统角色添加特定包
+{{- if eq .system "client" }}
+{{- range .packages.linux.pip.client }}
+pipx_packages+=("{{ . }}")
+{{- end }}
+{{- else if eq .system "server" }}
+{{- range .packages.linux.pip.server }}
+pipx_packages+=("{{ . }}")
+{{- end }}
+{{- end }}
+
+echo -e "${BLUE}要安装的 pipx 包: ${pipx_packages[*]}${NC}"
+
+# 安装包
+install_pipx_packages "${pipx_packages[@]}"
+
+echo -e "${GREEN}Package installation completed!${NC}"
 
 {{ end -}} 
