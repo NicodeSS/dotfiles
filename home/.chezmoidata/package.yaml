@@ -48,6 +48,7 @@ packages:
   linux:
     internal:
       common:
+        - lsd
         - curl
         - git
         - zsh
