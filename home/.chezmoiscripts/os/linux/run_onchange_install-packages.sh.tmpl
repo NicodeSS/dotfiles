@@ -122,6 +122,100 @@ echo "Brew packages to install: ${brew_packages[*]}"
 install_internal_packages "${internal_packages[@]}"
 install_brew_packages "${brew_packages[@]}"
 
+# 安装 pip 包
+echo "开始安装 pip 包..."
+
+# 检查并安装 pip 的函数
+ensure_pip_installed() {
+    if command -v pip3 &> /dev/null; then
+        PIP_CMD="pip3"
+        return 0
+    elif command -v pip &> /dev/null; then
+        PIP_CMD="pip"
+        return 0
+    else
+        echo "pip 未安装，尝试安装 python3-pip..."
+        case $DISTRO in
+            ubuntu|debian)
+                sudo apt install -y python3-pip
+                ;;
+            fedora|rhel|centos)
+                if command -v dnf &> /dev/null; then
+                    sudo dnf install -y python3-pip
+                else
+                    sudo yum install -y python3-pip
+                fi
+                ;;
+            arch|manjaro)
+                sudo pacman -S --needed --noconfirm python-pip
+                ;;
+            opensuse|opensuse-leap|opensuse-tumbleweed)
+                sudo zypper install -y python3-pip
+                ;;
+            *)
+                echo "不支持的发行版，无法安装 pip: $DISTRO"
+                return 1
+                ;;
+        esac
+        
+        # 重新检查 pip
+        if command -v pip3 &> /dev/null; then
+            PIP_CMD="pip3"
+            return 0
+        elif command -v pip &> /dev/null; then
+            PIP_CMD="pip"
+            return 0
+        else
+            echo "pip 安装失败"
+            return 1
+        fi
+    fi
+}
+
+# 安装 pip 包的函数
+install_pip_packages() {
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        echo "没有 pip 包需要安装"
+        return 0
+    fi
+    
+    echo "安装 pip 包: ${packages[*]}"
+    $PIP_CMD install --user "${packages[@]}" || echo "警告: 一些 pip 包安装失败"
+}
+
+# 确保 pip 已安装
+if ensure_pip_installed; then
+    echo "使用 pip 命令: $PIP_CMD"
+    
+    # 收集要安装的 pip 包
+    pip_packages=()
+    
+    # 添加 common 包
+    {{ range .packages.linux.pip.common -}}
+    pip_packages+=("{{ . }}")
+    {{ end -}}
+    
+    # 根据系统角色添加特定包
+    {{- if eq .system "client" }}
+    {{- range .packages.linux.pip.client }}
+    pip_packages+=("{{ . }}")
+    {{- end }}
+    {{- else if eq .system "server" }}
+    {{- range .packages.linux.pip.server }}
+    pip_packages+=("{{ . }}")
+    {{- end }}
+    {{- end }}
+    
+    echo "要安装的 pip 包: ${pip_packages[*]}"
+    
+    # 安装包
+    install_pip_packages "${pip_packages[@]}"
+else
+    echo "无法安装 pip，跳过 pip 包安装"
+fi
+
 echo "Package installation completed!"
 
 {{ end -}} 

@@ -23,4 +23,47 @@ fi
 
 set -e
 
+# 安装 pip 包
+echo "开始安装 pip 包..."
+
+# 检查 pip 是否可用
+if command -v pip3 &> /dev/null; then
+    PIP_CMD="pip3"
+elif command -v pip &> /dev/null; then
+    PIP_CMD="pip"
+else
+    echo "pip 未找到，跳过 pip 包安装"
+    exit 0
+fi
+
+echo "使用 pip 命令: $PIP_CMD"
+
+# 收集要安装的 pip 包
+pip_packages=()
+
+# 添加 common 包
+{{ range .packages.darwin.pip.common -}}
+pip_packages+=("{{ . }}")
+{{ end -}}
+
+# 根据系统角色添加特定包
+{{- if eq .system "client" }}
+{{- range .packages.darwin.pip.client }}
+pip_packages+=("{{ . }}")
+{{- end }}
+{{- else if eq .system "server" }}
+{{- range .packages.darwin.pip.server }}
+pip_packages+=("{{ . }}")
+{{- end }}
+{{- end }}
+
+if [ ${#pip_packages[@]} -gt 0 ]; then
+    echo "安装 pip 包: ${pip_packages[*]}"
+    $PIP_CMD install "${pip_packages[@]}" || echo "警告: 一些 pip 包安装失败"
+else
+    echo "没有 pip 包需要安装"
+fi
+
+echo "所有包安装完成！"
+
 {{ end -}}

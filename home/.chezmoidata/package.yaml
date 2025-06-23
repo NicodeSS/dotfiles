@@ -45,6 +45,10 @@ packages:
       - visual-studio-code
       - warp
       - bitwarden
+    pip:
+      - thefuck
+      - requests
+
   linux:
     internal:
       common:
@@ -63,6 +67,8 @@ packages:
         - avahi-daemon
         - tmux # client only?
         - build-essential
+        - python3
+        - python3-pip
 
       client:
         - nmap
@@ -71,6 +77,15 @@ packages:
 
     brew:
       common:
+
+      client:
+
+      server:
+
+    pip:
+      common:
+        - thefuck
+        - requests
 
       client:
 
