@@ -8,7 +8,6 @@ packages:
       - thefuck
       - atuin
       - python
-      - pipx
       - bitwarden-cli
       - blueutil
       - curl
@@ -52,6 +51,8 @@ packages:
   linux:
     internal:
       common:
+        - build-essential
+        - gcc
         - lsd
         - curl
         - git
@@ -64,7 +65,6 @@ packages:
         - tldr
         - xclip
         - tmux # client only?
-        - build-essential
         - python3
 
       client:
@@ -76,7 +76,7 @@ packages:
 
     brew:
       common:
-
+        - thefuck
       client:
 
       server:

@@ -48,6 +48,7 @@ typeset -gU cdpath fpath mailpath path
 path=(
   $path
   /opt/{homebrew,local}/{,s}bin(N-/)
+  /home/linuxbrew/.linuxbrew/{,s}bin(N-/)
   /usr/local/{,s}bin(N-/)
   ${HOME}/.local/bin(N-/)
   ${HOME}/.local/n/bin(N-/)
