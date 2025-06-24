@@ -79,6 +79,7 @@ packages:
         - atuin
         - thefuck
       client:
+        - bitwarden-cli
 
       server:
 
