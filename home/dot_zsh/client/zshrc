@@ -25,5 +25,8 @@ source-safe "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 source-safe "$HOME/.atuin/bin/env"
 command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
 
+# ----- [Personal] -----
+source-safe "$HOME/.zsh/personal.zsh"
+
 # ----- [Powerlevel10k] -----
 source-safe ~/.config/powerlevel10k/p10k.zsh

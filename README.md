@@ -22,7 +22,7 @@ cd dotfiles
 - **Package manager support**:
   - Linux: apt, yum, dnf, pacman, zypper
   - macOS: Homebrew
-  - Windows: winget, Scoop, Chocolatey
+  - WSL: depends on base system
 - **CI/CD friendly**: Works in non-interactive environments
 - **Robust error handling**: Comprehensive logging and fallback mechanisms
 - **Shell restart**: Automatically restarts shell to load new configurations
@@ -55,15 +55,6 @@ Examples:
 - `DOTFILES_DEBUG`: Enable debug output
 - `BRANCH_NAME`: Git branch to use (default: main)
 - `CI`: Detect CI environment for non-interactive mode
-
-## Installation Process
-
-1. **System Detection**: Automatically detects OS type and architecture
-2. **Package Manager Setup**: Installs required package managers if needed
-3. **Chezmoi Installation**: Downloads and installs chezmoi using the best available method
-4. **Configuration Initialization**: Initializes chezmoi with your dotfiles repository
-5. **Script Execution**: Runs platform-specific installation scripts
-6. **Shell Restart**: Restarts shell to load new configurations
 
 ## Customization
 
