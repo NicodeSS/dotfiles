@@ -217,19 +217,25 @@ zstyle ':prezto:module:syntax-highlighting' highlighters \
   'main' \
   'brackets' \
   'pattern' \
-  'line' \
   'cursor' \
   'root'
+# line \
+
 #
 # Set syntax highlighting styles.
-# zstyle ':prezto:module:syntax-highlighting' styles \
-#   'builtin' 'bg=blue' \
-#   'command' 'bg=blue' \
-#   'function' 'bg=blue'
+zstyle ':prezto:module:syntax-highlighting' styles \
+  'builtin' 'fg=green' \
+  'command' 'fg=green' \
+  'function' 'fg=blue' \
+  'alias' 'fg=blue' \
+  'path' 'fg=yellow' \
+  'single-hyphen-option' 'fg=cyan' \
+  'double-hyphen-option' 'fg=cyan'
+
 #
 # Set syntax pattern styles.
-# zstyle ':prezto:module:syntax-highlighting' pattern \
-#   'rm*-rf*' 'fg=white,bold,bg=red'
+zstyle ':prezto:module:syntax-highlighting' pattern \
+  'rm*-rf*' 'fg=white,bold,bg=red'
 
 #
 # Terminal
