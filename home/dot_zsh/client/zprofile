@@ -51,7 +51,7 @@ path=(
   /home/linuxbrew/.linuxbrew/{,s}bin(N-/)
   /usr/local/{,s}bin(N-/)
   ${HOME}/.local/bin(N-/)
-  ${HOME}/.local/n/bin(N-/)
+  ${HOME}/.local/share/n/bin(N-/)
 )
 
 #
@@ -72,4 +72,4 @@ if [[ -z "$LESSOPEN" ]] && (( $#commands[(i)lesspipe(|.sh)] )); then
 fi
 
 # N - Node Version Manager
-export N_PREFIX="${HOME}/.local/n"
+export N_PREFIX="${HOME}/.local/share/n"
