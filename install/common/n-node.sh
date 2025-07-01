@@ -31,7 +31,7 @@ install_n_node() {
     echo -e "${BLUE}Installing n with N_PREFIX=$N_PREFIX${NC}"
 
     # Install n using the provided command
-    if curl -L https://bit.ly/n-install | N_PREFIX=~/.local/share/n bash -s -- -y -n; then
+    if curl -L https://bit.ly/n-install | N_INSTALL_TEST_OVERRIDE_SKIP_EXISTING_INSTALLATION_TEST=1 N_PREFIX=~/.local/share/n bash -s -- -y -n; then
         echo -e "${GREEN}✓ n installed successfully${NC}"
     else
         echo -e "${RED}✗ Error: n installation failed${NC}"
