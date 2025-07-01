@@ -54,6 +54,11 @@ path=(
   ${HOME}/.local/share/n/bin(N-/)
 )
 
+fpath=(
+  $fpath
+  ${HOME}/.zsh/functions(N-/)
+)
+
 #
 # Less
 #

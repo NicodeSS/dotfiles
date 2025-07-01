@@ -14,6 +14,12 @@ alias top='htop'     # Use htop instead of top if installed
 alias cls='clear'
 alias path='echo -e ${PATH//:/\\n}' # Print PATH variable line by line
 
+alias cht='cht.sh'
+
+compi() {
+    compinit -i -d ~/.cache/prezto/zcompdump
+}
+
 # Function to create a directory and navigate into it
 mkcd() {
     if [ -z "$1" ]; then
