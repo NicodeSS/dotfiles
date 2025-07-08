@@ -52,6 +52,7 @@ path=(
   /usr/local/{,s}bin(N-/)
   ${HOME}/.local/bin(N-/)
   ${HOME}/.local/share/n/bin(N-/)
+  ${HOME}/.local/share/pnpm(N-/)
 )
 
 fpath=(
