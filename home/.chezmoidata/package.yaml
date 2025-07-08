@@ -92,3 +92,12 @@ packages:
       server:
 
     node:
+      common:
+      macos:
+        '@anthropic-ai/claude-code'
+      linux:
+        common:
+        client:
+          - '@anthropic-ai/claude-code'
+        server:
+          
