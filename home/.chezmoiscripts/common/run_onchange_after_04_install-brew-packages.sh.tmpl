@@ -14,6 +14,41 @@ OS="{{ .chezmoi.os }}"
 SYSTEM_ROLE="{{ .system | default "client" }}"
 echo "OS: $OS, System role: $SYSTEM_ROLE"
 
+# Function to setup Homebrew environment if not available
+setup_homebrew_env() {
+    echo -e "${BLUE}Attempting to setup Homebrew environment...${NC}"
+    
+    # Collect all possible Homebrew installation paths
+    local possible_brew_paths=(
+        "/opt/homebrew/bin/brew"          # Apple Silicon Mac (ARM64)
+        "/usr/local/bin/brew"             # Intel Mac (x86_64)
+        "/home/linuxbrew/.linuxbrew/bin/brew"  # Linux Homebrew
+        "/usr/local/homebrew/bin/brew"    # Alternative Linux path
+        "$HOME/.linuxbrew/bin/brew"       # User-specific Linux installation
+        "/opt/local/bin/brew"             # Alternative installation
+    )
+    
+    # Find the actual brew installation
+    local brew_path=""
+    for path in "${possible_brew_paths[@]}"; do
+        if [[ -x "$path" ]]; then
+            brew_path="$path"
+            echo -e "${GREEN}Found Homebrew at: $brew_path${NC}"
+            break
+        fi
+    done
+    
+    # Setup environment if brew was found
+    if [[ -n "$brew_path" && -x "$brew_path" ]]; then
+        echo -e "${BLUE}Setting up Homebrew environment using: $brew_path${NC}"
+        eval "$("$brew_path" shellenv)"
+        return 0
+    else
+        echo -e "${YELLOW}Could not locate Homebrew installation.${NC}"
+        return 1
+    fi
+}
+
 # Function to install Homebrew packages
 install_brew_packages() {
     local packages=("$@")
@@ -25,11 +60,30 @@ install_brew_packages() {
     
     # Check if Homebrew is available
     if ! command -v brew &> /dev/null; then
-        echo -e "${YELLOW}Homebrew not installed, skipping brew packages: ${packages[*]}${NC}"
-        if [ "$OS" = "linux" ]; then
-            exit 1
+        echo -e "${YELLOW}Homebrew command not found in PATH, attempting to setup environment...${NC}"
+        
+        # Try to setup Homebrew environment
+        if setup_homebrew_env; then
+            # Check again after setting up environment
+            if ! command -v brew &> /dev/null; then
+                echo -e "${RED}Homebrew still not available after environment setup${NC}"
+                echo -e "${YELLOW}Skipping brew packages: ${packages[*]}${NC}"
+                if [ "$OS" = "linux" ]; then
+                    exit 1
+                else
+                    return 1
+                fi
+            else
+                echo -e "${GREEN}Homebrew environment setup successful!${NC}"
+            fi
         else
-            return 1
+            echo -e "${RED}Failed to setup Homebrew environment${NC}"
+            echo -e "${YELLOW}Skipping brew packages: ${packages[*]}${NC}"
+            if [ "$OS" = "linux" ]; then
+                exit 1
+            else
+                return 1
+            fi
         fi
     fi
     

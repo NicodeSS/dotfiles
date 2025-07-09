@@ -34,6 +34,52 @@ function install_homebrew() {
 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
+    # Setup Homebrew environment variables for current session
+    echo "> Setting up Homebrew environment variables..."
+    
+    # Collect all possible Homebrew installation paths
+    local possible_brew_paths=(
+        "/opt/homebrew/bin/brew"          # Apple Silicon Mac (ARM64)
+        "/usr/local/bin/brew"             # Intel Mac (x86_64)
+        "/home/linuxbrew/.linuxbrew/bin/brew"  # Linux Homebrew
+        "/usr/local/homebrew/bin/brew"    # Alternative Linux path
+        "$HOME/.linuxbrew/bin/brew"       # User-specific Linux installation
+        "/opt/local/bin/brew"             # Alternative installation
+    )
+    
+    # Find the actual brew installation
+    local brew_path=""
+    for path in "${possible_brew_paths[@]}"; do
+        if [[ -x "$path" ]]; then
+            brew_path="$path"
+            echo "> Found Homebrew at: $brew_path"
+            break
+        fi
+    done
+    
+    # If not found in common paths, try to find it in PATH or use which/type
+    if [[ -z "$brew_path" ]]; then
+        if command -v brew &>/dev/null; then
+            brew_path="$(command -v brew)"
+            echo "> Found Homebrew in PATH at: $brew_path"
+        elif type -P brew &>/dev/null; then
+            brew_path="$(type -P brew)"
+            echo "> Found Homebrew using type at: $brew_path"
+        fi
+    fi
+    
+    # Setup environment if brew was found
+    if [[ -n "$brew_path" && -x "$brew_path" ]]; then
+        echo "> Setting up Homebrew environment using: $brew_path"
+        eval "$("$brew_path" shellenv)"
+        echo "> Homebrew environment configured successfully."
+    else
+        echo "> Warning: Could not locate Homebrew installation. You may need to restart your shell or manually run 'eval \"\$(brew shellenv)\"'"
+        echo "> Common installation paths checked:"
+        printf "  - %s\n" "${possible_brew_paths[@]}"
+    fi
+    
+    echo "> Homebrew installation completed."
 }
 
 function opt_out_of_analytics() {
