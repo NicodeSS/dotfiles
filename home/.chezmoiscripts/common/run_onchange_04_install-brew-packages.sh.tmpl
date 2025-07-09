@@ -1,0 +1,136 @@
+#!/bin/bash
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
+# chezmoi:run-onchange-hash: {{ .packages | toJson | sha256sum }}
+
+# Color definitions
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Get system info
+OS="{{ .chezmoi.os }}"
+SYSTEM_ROLE="{{ .system | default "client" }}"
+echo "OS: $OS, System role: $SYSTEM_ROLE"
+
+# Function to install Homebrew packages
+install_brew_packages() {
+    local packages=("$@")
+    
+    if [ ${#packages[@]} -eq 0 ]; then
+        echo "No brew packages to install"
+        return 0
+    fi
+    
+    # Check if Homebrew is available
+    if ! command -v brew &> /dev/null; then
+        echo -e "${YELLOW}Homebrew not installed, skipping brew packages: ${packages[*]}${NC}"
+        if [ "$OS" = "linux" ]; then
+            exit 1
+        else
+            return 1
+        fi
+    fi
+    
+    echo "Installing packages with Homebrew: ${packages[*]}"
+    
+    # Use different installation methods based on OS
+    if [ "$OS" = "darwin" ]; then
+        # macOS: Use brew bundle for better handling of failures
+        set +e
+        
+        # Create temporary Brewfile
+        local brewfile_content=""
+        for package in "${packages[@]}"; do
+            brewfile_content="${brewfile_content}brew \"${package}\"\n"
+        done
+        
+        echo -e "$brewfile_content" | brew bundle --verbose --file=/dev/stdin
+        local brew_exit_code=$?
+        
+        if [ $brew_exit_code -ne 0 ]; then
+            echo "Caution: brew bundle installation is not fully succeed."
+        fi
+        
+        set -e
+    else
+        # Linux: Direct brew install
+        brew install "${packages[@]}" || echo "Warning: Some brew packages failed to install"
+    fi
+}
+
+# Function to install cask packages (macOS only)
+install_cask_packages() {
+    local packages=("$@")
+    
+    if [ "$OS" != "darwin" ] || [ ${#packages[@]} -eq 0 ]; then
+        return 0
+    fi
+    
+    echo "Installing cask packages: ${packages[*]}"
+    
+    set +e
+    
+    # Create temporary Brewfile for casks
+    local brewfile_content=""
+    for package in "${packages[@]}"; do
+        brewfile_content="${brewfile_content}cask \"${package}\"\n"
+    done
+    
+    echo -e "$brewfile_content" | brew bundle --verbose --file=/dev/stdin
+    local brew_exit_code=$?
+    
+    if [ $brew_exit_code -ne 0 ]; then
+        echo "Caution: cask installation is not fully succeed."
+    fi
+    
+    set -e
+}
+
+# Collect packages to install
+brew_packages=()
+cask_packages=()
+
+{{- if eq .chezmoi.os "linux" }}
+# Linux brew packages
+{{- range .packages.linux.brew.common }}
+brew_packages+=("{{ . }}")
+{{- end }}
+
+{{- if eq .system "client" }}
+{{- range .packages.linux.brew.client }}
+brew_packages+=("{{ . }}")
+{{- end }}
+{{- else if eq .system "server" }}
+{{- range .packages.linux.brew.server }}
+brew_packages+=("{{ . }}")
+{{- end }}
+{{- end }}
+
+{{- else if eq .chezmoi.os "darwin" }}
+# macOS brew packages
+{{- range .packages.darwin.brew }}
+brew_packages+=("{{ . }}")
+{{- end }}
+
+# macOS cask packages
+{{- range .packages.darwin.cask }}
+cask_packages+=("{{ . }}")
+{{- end }}
+{{- end }}
+
+echo "Brew packages to install: ${brew_packages[*]}"
+{{- if eq .chezmoi.os "darwin" }}
+echo "Cask packages to install: ${cask_packages[*]}"
+{{- end }}
+
+# Install packages
+install_brew_packages "${brew_packages[@]}"
+{{- if eq .chezmoi.os "darwin" }}
+install_cask_packages "${cask_packages[@]}"
+{{- end }}
+
+echo -e "${GREEN}Homebrew package installation completed!${NC}"
+
+{{- end }} 
