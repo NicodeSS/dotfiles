@@ -52,6 +52,7 @@ packages:
     internal:
       common:
         - build-essential
+        - make
         - gcc
         - lsd
         - curl
