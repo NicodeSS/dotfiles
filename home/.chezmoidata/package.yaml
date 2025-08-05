@@ -21,7 +21,7 @@ packages:
       - scrcpy
       - tldr
       - yt-dlp
-      # - fzf
+      - fzf
     cask:
       - airbuddy
       - android-platform-tools
@@ -94,11 +94,9 @@ packages:
 
     node:
       common:
-      macos:
-        '@anthropic-ai/claude-code'
+      macos: "@anthropic-ai/claude-code"
       linux:
         common:
         client:
-          - '@anthropic-ai/claude-code'
+          - "@anthropic-ai/claude-code"
         server:
-          

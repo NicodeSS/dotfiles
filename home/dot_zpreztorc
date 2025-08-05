@@ -44,9 +44,9 @@ zstyle ':prezto:load' pmodule \
   'osx' \
   'thefuck' \
   'alias-tips' \
-  'tmux'
+  'tmux' \
+  'fzf'
 
-# 'fzf'
 # 'history-substring-search'
 
 #
