@@ -234,7 +234,7 @@ alias gcansF='git commit --verbose --all --no-edit --signoff --amend'  # Amend t
 alias gcannF='git commit --verbose --all --date=now --no-edit --amend' # Amend the last commit with all changes, no edit, and set the date to now
 alias gcas='git commit --all --signoff'                                # Commit all changes with a signoff
 alias gcasm='git commit --all --signoff --message'                     # Commit all changes with a signoff and message
-alias gcm='git commit --message'                                       # Commit with a message
+alias gcmm='git commit --message'                                       # Commit with a message
 alias gcsm='git commit --signoff --message'                            # Commit with a signoff and message
 alias gcn='git commit --verbose --no-edit'                             # Commit changes without editing the commit message
 alias gcnF='git commit --verbose --no-edit --amend'                    # Amend the last commit without editing the commit message
