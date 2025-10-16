@@ -94,9 +94,12 @@ packages:
 
     node:
       common:
-      macos: "@anthropic-ai/claude-code"
+      macos:
+        - "tig"
+        - "git-open"
       linux:
         common:
         client:
-          - "@anthropic-ai/claude-code"
+          - "tig"
+          - "git-open"
         server:
