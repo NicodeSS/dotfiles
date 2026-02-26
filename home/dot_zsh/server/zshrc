@@ -1,0 +1,36 @@
+source-safe() { if [ -r "$1" ]; then source "$1"; fi; }
+
+# ----- [Instant Prompt] -----
+source-safe "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-$USER.zsh"
+
+# ----- [Alias] -----
+source-safe "$HOME/.zsh/alias.zsh"
+
+# ----- [Prezto] -----
+source-safe "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+
+# ----- [Atuin] -----
+source-safe "$HOME/.atuin/bin/env"
+command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
+
+# ----- [fzf] -----
+if command -v fzf >/dev/null 2>&1; then
+    FZF_SHELL_DIR=""
+    if [[ -d "/home/linuxbrew/.linuxbrew/opt/fzf/shell" ]]; then
+        FZF_SHELL_DIR="/home/linuxbrew/.linuxbrew/opt/fzf/shell"
+    elif [[ -d "/usr/share/fzf" ]]; then
+        FZF_SHELL_DIR="/usr/share/fzf"
+    elif [[ -d "$HOME/.fzf" ]]; then
+        FZF_SHELL_DIR="$HOME/.fzf/shell"
+    fi
+    if [[ -n "$FZF_SHELL_DIR" ]]; then
+        source-safe "$FZF_SHELL_DIR/completion.zsh"
+        source-safe "$FZF_SHELL_DIR/key-bindings.zsh"
+    fi
+fi
+
+# ----- [Personal] -----
+source-safe "$HOME/.zsh/personal.zsh"
+
+# ----- [Powerlevel10k] -----
+source-safe ~/.config/powerlevel10k/p10k.zsh

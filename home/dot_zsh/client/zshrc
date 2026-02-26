@@ -25,6 +25,12 @@ source-safe "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 source-safe "$HOME/.atuin/bin/env"
 command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
 
+# ----- [fzf] -----
+if command -v fzf >/dev/null 2>&1; then
+    source-safe "$(brew --prefix)/opt/fzf/shell/completion.zsh"
+    source-safe "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
+fi
+
 # ----- [Personal] -----
 source-safe "$HOME/.zsh/personal.zsh"
 

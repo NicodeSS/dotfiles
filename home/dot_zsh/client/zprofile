@@ -82,34 +82,40 @@ export N_PREFIX="${HOME}/.local/share/n"
 
 # ----- [WSL PATH] -----
 
-# Detect if running under WSL
 if [[ -n "$WSL_DISTRO_NAME" ]] || [[ -n "$WSLENV" ]] || [[ "$(uname -r)" =~ (M|m)icrosoft ]]; then
-  # WSL automatically appends Windows PATH, which can cause conflicts
-  # We need to ensure WSL/Linux tools have priority over Windows tools
-  
-  # Save original PATH
-  _original_path="$PATH"
-  
-  # Reset PATH with Linux-only paths
-  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-  
-  # Add WSL-specific paths in priority order
-  path=(
+  : ${WSL_KEEP_WIN_PATHS:=1}
+  : ${WSL_PREPEND_PATHS:=}
+  : ${WSL_APPEND_PATHS:=}
+
+  local -a _all _linux _win _prepend
+  _all=("${(@s/:/)PATH}")
+
+  local p
+  for p in "${_all[@]}"; do
+    if [[ "$p" == /mnt/[a-z]/* || "$p" == *Windows* || "$p" == *Microsoft* ]]; then
+      _win+=("$p")
+    else
+      _linux+=("$p")
+    fi
+  done
+
+  _prepend=(
     ${HOME}/.local/share/pnpm(N-/)
     ${HOME}/.local/share/n/bin(N-/)
     ${HOME}/.local/bin(N-/)
     /home/linuxbrew/.linuxbrew/bin(N-/)
     /home/linuxbrew/.linuxbrew/sbin(N-/)
-    $path
   )
-  
-  # Extract and append Windows paths to the end
-  if [[ "$_original_path" =~ /mnt/c ]]; then
-    _win_paths=$(echo "$_original_path" | tr ':' '\n' | grep '^/mnt/c' | tr '\n' ':' | sed 's/:$//')
-    if [[ -n "$_win_paths" ]]; then
-      PATH="$PATH:$_win_paths"
-    fi
+
+  path=(
+    "${(@s/:/)WSL_PREPEND_PATHS}"
+    "${_prepend[@]}"
+    "${_linux[@]}"
+    "${(@s/:/)WSL_APPEND_PATHS}"
+  )
+  if [[ "$WSL_KEEP_WIN_PATHS" == 1 ]]; then
+    path+=("${_win[@]}")
   fi
-  
-  unset _original_path _win_paths
+
+  unset _all _linux _win _prepend p
 fi

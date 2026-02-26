@@ -492,6 +492,9 @@ alias gwta='git worktree add'
 alias gwtls='git worktree list'
 alias gwtmv='git worktree move'
 alias gwtrm='git worktree remove'
+alias gwtpr='git worktree prune'
+alias gwtlk='git worktree lock'
+alias gwtulk='git worktree unlock'
 
 # special
 alias gignore='git update-index --assume-unchanged'

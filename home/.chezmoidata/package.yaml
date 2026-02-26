@@ -22,6 +22,8 @@ packages:
       - tldr
       - yt-dlp
       - fzf
+      - ripgrep
+      - tw93/tap/mole
     cask:
       - airbuddy
       - android-platform-tools
@@ -67,6 +69,8 @@ packages:
         - xclip
         - tmux # client only?
         - python3
+        - fzf
+        - ripgrep
 
       client:
         - nmap
