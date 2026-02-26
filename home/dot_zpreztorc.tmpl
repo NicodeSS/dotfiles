@@ -40,12 +40,21 @@ zstyle ':prezto:load' pmodule \
   'syntax-highlighting' \
   'autosuggestions' \
   'git' \
+{{- if eq .chezmoi.os "darwin" }}
   'osx' \
+{{- end }}
+{{- if lookPath "thefuck" }}
   'thefuck' \
-  'alias-tips' \
+{{- end }}
+{{- if lookPath "tmux" }}
   'tmux' \
-  'fzf'
+{{- end }}
+{{- if lookPath "fzf" }}
+  'fzf' \
+{{- end }}
 
+
+# 'alias-tips'
 # 'history-substring-search'
 
 #

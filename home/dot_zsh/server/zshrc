@@ -11,22 +11,13 @@ source-safe "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 
 # ----- [Atuin] -----
 source-safe "$HOME/.atuin/bin/env"
-command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
-
-# ----- [fzf] -----
-if command -v fzf >/dev/null 2>&1; then
-    FZF_SHELL_DIR=""
-    if [[ -d "/home/linuxbrew/.linuxbrew/opt/fzf/shell" ]]; then
-        FZF_SHELL_DIR="/home/linuxbrew/.linuxbrew/opt/fzf/shell"
-    elif [[ -d "/usr/share/fzf" ]]; then
-        FZF_SHELL_DIR="/usr/share/fzf"
-    elif [[ -d "$HOME/.fzf" ]]; then
-        FZF_SHELL_DIR="$HOME/.fzf/shell"
+if command -v atuin >/dev/null 2>&1; then
+    _atuin_cache="${XDG_CACHE_HOME:-$HOME/.cache}/atuin-init.zsh"
+    if [[ ! -f "$_atuin_cache" ]] || [[ "$(which atuin)" -nt "$_atuin_cache" ]]; then
+        atuin init zsh > "$_atuin_cache" 2>/dev/null
     fi
-    if [[ -n "$FZF_SHELL_DIR" ]]; then
-        source-safe "$FZF_SHELL_DIR/completion.zsh"
-        source-safe "$FZF_SHELL_DIR/key-bindings.zsh"
-    fi
+    source-safe "$_atuin_cache"
+    unset _atuin_cache
 fi
 
 # ----- [Personal] -----

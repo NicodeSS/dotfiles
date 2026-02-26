@@ -23,12 +23,13 @@ source-safe "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 
 # ----- [Atuin] -----
 source-safe "$HOME/.atuin/bin/env"
-command -v atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
-
-# ----- [fzf] -----
-if command -v fzf >/dev/null 2>&1; then
-    source-safe "$(brew --prefix)/opt/fzf/shell/completion.zsh"
-    source-safe "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
+if command -v atuin >/dev/null 2>&1; then
+    _atuin_cache="${XDG_CACHE_HOME:-$HOME/.cache}/atuin-init.zsh"
+    if [[ ! -f "$_atuin_cache" ]] || [[ "$(which atuin)" -nt "$_atuin_cache" ]]; then
+        atuin init zsh > "$_atuin_cache" 2>/dev/null
+    fi
+    source-safe "$_atuin_cache"
+    unset _atuin_cache
 fi
 
 # ----- [Personal] -----

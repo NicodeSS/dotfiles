@@ -31,12 +31,12 @@ source-safe ~/.local/share/alias/system/client.sh
 
 
 # ----- [Tools] -----
-if [[ -d ~/.local/share/alias/tools ]]; then
-    for tool_file in ~/.local/share/alias/tools/*.sh; do
-        tool_name=$(basename "$tool_file" .sh)
-        command -v "$tool_name" >/dev/null 2>&1 && source-safe "$tool_file"
-    done
-fi
+{{- range glob (joinPath .chezmoi.sourceDir "dot_local/share/alias/tools/*.sh") }}
+{{- $toolName := trimSuffix ".sh" (base .) }}
+{{- if lookPath $toolName }}
+source-safe ~/.local/share/alias/tools/{{ base . }}
+{{- end }}
+{{- end }}
 
 # ----- [Local (chezmoi ignored)] -----
 source-safe ~/.local/share/alias/local.sh
