@@ -1,0 +1,61 @@
+#!/bin/bash
+# Sync agent skills to all supported CLI tools (chezmoi-managed skills only)
+# Skills hash (triggers re-run on any skill change):
+# {{ range (glob "dot_config/agent-skills/*/SKILL.md") }}{{ . | include | sha256sum }}{{ end }}
+
+set -eo pipefail
+
+SKILLS_SOURCE="${HOME}/.config/agent-skills"
+SKILLS_CONF="${HOME}/.config/agent-skills.yaml"
+
+PLATFORMS="claude codex gemini trae-cn trae antigravity"
+
+get_skills_path() {
+    local platform="$1"
+    case "$platform" in
+        claude)      echo "${HOME}/.claude/skills" ;;
+        codex)       echo "${HOME}/.codex/skills" ;;
+        gemini)      echo "${HOME}/.gemini/skills" ;;
+        trae-cn)     echo "${HOME}/.trae-cn/skills" ;;
+        trae)        echo "${HOME}/.trae/skills" ;;
+        antigravity) echo "${HOME}/.antigravity/skills" ;;
+    esac
+}
+
+echo "🔄 Syncing agent skills to all platforms..."
+
+if [[ ! -d "$SKILLS_SOURCE" ]]; then
+    echo "⚠️  Skills source directory not found: $SKILLS_SOURCE"
+    exit 0
+fi
+
+for platform in $PLATFORMS; do
+    target_dir=$(get_skills_path "$platform")
+    parent_dir=$(dirname "$target_dir")
+    
+    if [[ -d "$parent_dir" ]]; then
+        mkdir -p "$target_dir"
+        
+        for skill_dir in "$SKILLS_SOURCE"/*/; do
+            if [[ -d "$skill_dir" ]]; then
+                skill_name=$(basename "$skill_dir")
+                target_skill_dir="$target_dir/$skill_name"
+                
+                if [[ -L "$target_skill_dir" ]]; then
+                    rm "$target_skill_dir"
+                elif [[ -d "$target_skill_dir" ]]; then
+                    echo "  ⚠️  Skipping $platform/$skill_name (exists as directory)"
+                    continue
+                fi
+                
+                ln -sf "$skill_dir" "$target_skill_dir"
+                echo "  ✅ $platform/$skill_name -> symlinked"
+            fi
+        done
+    else
+        echo "  ⏭️  Skipping $platform (not installed)"
+    fi
+done
+
+echo "✨ Agent skills sync complete!"
+echo "💡 Tip: Use 'skill-sync' command for full bidirectional sync"

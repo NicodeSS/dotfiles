@@ -1,0 +1,8 @@
+# Agent Skills 配置
+# 此文件由 chezmoi 创建骨架，本地修改不会被覆盖
+# 可在此添加更多配置项
+
+# 只在本地同步、不上传 chezmoi 的 skills
+local_only:
+  # - example-skill
+  # - company-internal
