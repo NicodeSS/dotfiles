@@ -20,6 +20,16 @@ if command -v atuin >/dev/null 2>&1; then
     unset _atuin_cache
 fi
 
+# ----- [Zoxide] -----
+if command -v zoxide >/dev/null 2>&1; then
+    _zoxide_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zoxide-init.zsh"
+    if [[ ! -f "$_zoxide_cache" ]] || [[ "$(which zoxide)" -nt "$_zoxide_cache" ]]; then
+        zoxide init zsh > "$_zoxide_cache" 2>/dev/null
+    fi
+    source-safe "$_zoxide_cache"
+    unset _zoxide_cache
+fi
+
 # ----- [Personal] -----
 source-safe "$HOME/.zsh/personal.zsh"
 

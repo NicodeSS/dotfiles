@@ -23,6 +23,7 @@ packages:
       - yt-dlp
       - fzf
       - ripgrep
+      - zoxide
       - tw93/tap/mole
     cask:
       - airbuddy
@@ -83,6 +84,7 @@ packages:
       common:
         - atuin
         - thefuck
+        - zoxide
       client:
         - bitwarden-cli
 
