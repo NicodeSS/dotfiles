@@ -29,6 +29,33 @@ mkcd() {
     mkdir -p "$@" && cd "${@:$#}"
 }
 
+rmup() {
+    local current_dir=$(pwd)
+    local parent_dir=$(dirname "$current_dir")
+    if [ "$current_dir" = "/" ] || [ "$current_dir" = "$HOME" ]; then
+        echo "错误: 不能删除根目录或主目录"
+        return 1
+    fi
+    echo "将删除目录: $current_dir"
+    read -q "confirm?确认删除? [y/N] " || { echo; return 1; }
+    echo
+    cd "$parent_dir" && rm -rf "$current_dir"
+}
+
+mvup() {
+    local current_dir=$(pwd)
+    local parent_dir=$(dirname "$current_dir")
+    local dir_name=$(basename "$current_dir")
+    if [ "$current_dir" = "/" ] || [ "$current_dir" = "$HOME" ]; then
+        echo "错误: 不能移动根目录或主目录的内容"
+        return 1
+    fi
+    echo "将移动 $current_dir 的内容到 $parent_dir 并删除当前目录"
+    read -q "confirm?确认操作? [y/N] " || { echo; return 1; }
+    echo
+    cd "$parent_dir" && mv "$dir_name"/* "$dir_name"/.[!.]* . 2>/dev/null; rm -rf "$dir_name"
+}
+
 # Function to display the current date and time in a human-readable format
 datetime() {
     date +"%Y-%m-%d %H:%M:%S"
