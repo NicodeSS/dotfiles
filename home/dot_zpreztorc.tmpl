@@ -39,7 +39,6 @@ zstyle ':prezto:load' pmodule \
   'python' \
   'syntax-highlighting' \
   'autosuggestions' \
-  'git' \
 {{- if eq .chezmoi.os "darwin" }}
   'osx' \
 {{- end }}
@@ -52,7 +51,7 @@ zstyle ':prezto:load' pmodule \
 {{- if lookPath "fzf" }}
   'fzf' \
 {{- end }}
-
+  'git'
 
 # 'alias-tips'
 # 'history-substring-search'
