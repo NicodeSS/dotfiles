@@ -429,10 +429,14 @@ run_chezmoi() {
     fi
 
     # Apply chezmoi configuration
-    log_info "Applying chezmoi configuration..."
-    "${chezmoi_cmd}" apply ${no_tty_option}
-
-    log_success "chezmoi configuration applied successfully"
+    log_info "Updating and applying chezmoi configuration..."
+    if "${chezmoi_cmd}" update ${no_tty_option}; then
+        log_success "chezmoi configuration updated and applied successfully"
+    else
+        log_warning "Failed to update from remote. Applying local configuration only..."
+        "${chezmoi_cmd}" apply ${no_tty_option}
+        log_success "chezmoi configuration applied successfully"
+    fi
 }
 
 # Installation script management
