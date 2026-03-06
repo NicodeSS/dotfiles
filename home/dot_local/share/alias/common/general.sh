@@ -14,8 +14,6 @@ alias top='htop'     # Use htop instead of top if installed
 alias cls='clear'
 alias path='echo -e ${PATH//:/\\n}' # Print PATH variable line by line
 
-alias cht='cht.sh'
-
 compi() {
     compinit -i -d ~/.cache/prezto/zcompdump
 }
