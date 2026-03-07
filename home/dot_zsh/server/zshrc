@@ -30,8 +30,18 @@ if command -v zoxide >/dev/null 2>&1; then
     unset _zoxide_cache
 fi
 
-# ----- [Personal] -----
-source-safe "$HOME/.zsh/personal.zsh"
+# ----- [Local] -----
+if [ -d "$HOME/.zsh/local" ]; then
+    source_local_files() {
+        setopt local_options null_glob
+        local local_file
+        for local_file in "$HOME/.zsh/local"/*.zsh; do
+            source-safe "$local_file"
+        done
+    }
+    source_local_files
+    unset -f source_local_files
+fi
 
 # ----- [Powerlevel10k] -----
 source-safe ~/.config/powerlevel10k/p10k.zsh
